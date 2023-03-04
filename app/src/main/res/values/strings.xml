@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">核酸人数</string>
+    <string name="app_title">核酸点人数</string>
+    <string name="app_author">人数识别统计</string>
+</resources>
