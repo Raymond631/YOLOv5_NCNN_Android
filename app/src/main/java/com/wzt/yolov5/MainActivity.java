@@ -104,11 +104,11 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.drawable.actionbar_dark_back_icon);
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        if(time_interval>10000){
-            //如果识别间隔大于10秒，就实时更新
+        if(time_interval>5000){
+            //如果识别间隔大于5秒，就实时更新
             request_frequency=1;
         }else{
-            //如果间隔小于10秒，则识别3次后，再用平均值更新数据库,以减少识别误差
+            //如果间隔小于5秒，则识别3次后，再用平均值更新数据库,以减少识别误差
             request_frequency=3;
         }
 
@@ -285,8 +285,8 @@ public class MainActivity extends AppCompatActivity {
         people_sum+=NumOfPeople;
         if(detection_times%request_frequency==0){
             request(people_sum/request_frequency);
+            people_sum=0;
         }
-        people_sum=0;
 
         return mutableBitmap;
     }
