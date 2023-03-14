@@ -35,6 +35,8 @@ import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,21 +54,20 @@ public class MainActivity extends AppCompatActivity {
     public static int USE_MODEL = YOLOV5S;
     public static boolean USE_GPU = false;
     private static final int REQUEST_CAMERA = 1;
-    private long startTime = 0;
-    private long endTime = 0;
     private int width;
     private int height;
-    private int NumOfPeople=0;
     private double threshold = 0.3f;
     private double nms_threshold = 0.7f;
-    double total_fps = 0;
+    private long total_time;
     int fps_count = 0;
-    private int detection_times=0;//识别次数
-    public static int time_interval=1000;//识别时间间隔（毫秒）
+    private long startTime = 0;
+    private long endTime = 0;
     public static String location_id;//位置id
+    private int lastNum;//上次人数
+    private int NumOfPeople=0;//当前人数
+    public static int time_interval=2000;//识别时间间隔（毫秒）
 
-    private int people_sum=0;
-    private int request_frequency;
+
     private static PostRequest_Interface request;
 
     private Toolbar toolbar;
@@ -104,13 +105,6 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.drawable.actionbar_dark_back_icon);
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        if(time_interval>5000){
-            //如果识别间隔大于5秒，就实时更新
-            request_frequency=1;
-        }else{
-            //如果间隔小于5秒，则识别3次后，再用平均值更新数据库,以减少识别误差
-            request_frequency=3;
-        }
 
         //步骤4:创建Retrofit对象
         Retrofit retrofit = new Retrofit.Builder()
@@ -255,12 +249,15 @@ public class MainActivity extends AppCompatActivity {
     //调用YOLOv5s模型
     protected void detectAndDraw(Bitmap image) {
         Box[] result = YOLOv5.detect(image, threshold, nms_threshold);
-        detection_times++;
         if (result == null) {
             detectCamera.set(false);
             return;
         }
-        mutableBitmap = drawBoxRects(image, result);
+        lastNum=NumOfPeople;//保留上次人数
+        NumOfPeople=result.length;//统计本次人数
+        request(lastNum,NumOfPeople,getTimeNow());//发起网络请求，更新数据库
+
+        mutableBitmap = drawBoxRects(image, result);//在图中框出检测结果
     }
     protected Bitmap drawBoxRects(Bitmap mutableBitmap, Box[] results) {
         if (results == null || results.length <= 0) {
@@ -272,22 +269,13 @@ public class MainActivity extends AppCompatActivity {
         boxPaint.setStyle(Paint.Style.STROKE);
         boxPaint.setStrokeWidth(4 * mutableBitmap.getWidth() / 800.0f);
         boxPaint.setTextSize(30 * mutableBitmap.getWidth() / 800.0f);
-        NumOfPeople=0;
         for (Box box : results) {
-            NumOfPeople++;
             boxPaint.setColor(box.getColor());
             boxPaint.setStyle(Paint.Style.FILL);
             canvas.drawText(box.getLabel() + String.format(Locale.CHINESE, " %.3f", box.getScore()), box.x0 + 3, box.y0 + 30 * mutableBitmap.getWidth() / 1000.0f, boxPaint);
             boxPaint.setStyle(Paint.Style.STROKE);
             canvas.drawRect(box.getRect(), boxPaint);
         }
-        //发起网络请求，更新数据库
-        people_sum+=NumOfPeople;
-        if(detection_times%request_frequency==0){
-            request(people_sum/request_frequency);
-            people_sum=0;
-        }
-
         return mutableBitmap;
     }
     protected void showResultOnUI() {
@@ -299,13 +287,12 @@ public class MainActivity extends AppCompatActivity {
 
                 endTime = System.currentTimeMillis();
                 long dur = endTime - startTime;
-                float fps = (float) (1000.0 / dur);
-                total_fps = (total_fps == 0) ? fps : (total_fps + fps);
+                total_time+=dur;
                 fps_count++;
 
                 tvInfo.setText(String.format(Locale.CHINESE,
-                        "Size: %dx%d\nTime: %.3f s\nFPS: %.3f\nAVG_FPS: %.3f\nNumber of people: %d\nDetection times： %d\nid:"+location_id,
-                        height, width, dur / 1000.0, fps, (float) total_fps / fps_count,NumOfPeople,detection_times));
+                        "#"+location_id+"号监测点第%d次识别：\n本次耗时: %.3f秒\n平均耗时: %.3f秒\n当前人数: %d人",
+                        fps_count,dur/1000.0,(float)total_time/1000.0/fps_count,NumOfPeople));
             }
         });
     }
@@ -336,11 +323,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //发起网络请求
-    public void request(int number) {
+    public void request(int lastNum, int number, String timeNow) {
         System.out.println("开始请求");
 
         //对 发送请求 进行封装
-        Call<Message> call = request.getCall(new NumberOfPeople(location_id,number));
+        Call<Message> call = request.getCall(new NumberOfPeople(location_id,lastNum,number,timeNow));
 
         //步骤6:发送网络请求(异步)
         call.enqueue(new Callback<Message>() {
@@ -358,6 +345,12 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println(throwable.getMessage());
             }
         });
+    }
+
+    public String getTimeNow() {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(date);
     }
 
 }

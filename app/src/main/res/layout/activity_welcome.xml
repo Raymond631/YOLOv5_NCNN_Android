@@ -65,6 +65,114 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                >
+                <TextView
+                    android:layout_width="130dp"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:textSize="14dp"
+                    android:text="预期检测人数"
+                    />
+                <EditText
+                    android:id="@+id/people_num"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:inputType="number"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                >
+                <TextView
+                    android:layout_width="130dp"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:textSize="14dp"
+                    android:text="预计耗时(小时)"
+                    />
+                <EditText
+                    android:id="@+id/complete_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:inputType="number"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                >
+                <TextView
+                    android:layout_width="130dp"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:textSize="14dp"
+                    android:text="检测速度(秒/人)"
+                    />
+                <EditText
+                    android:id="@+id/detect_speed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:inputType="number"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                >
+                <TextView
+                    android:layout_width="130dp"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:textSize="14dp"
+                    android:text="平均等待时间(分钟)"
+                    />
+                <EditText
+                    android:id="@+id/waiting_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:inputType="number"
+                    />
+            </LinearLayout>
+            <Button
+                android:id="@+id/advice_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="生成建议"
+                android:textAllCaps="false"
+                app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/advice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="建议："
+                android:textColor="@color/red"
+                android:paddingStart="5dp"
+                android:paddingTop="5dp"
+                app:layout_constraintStart_toEndOf="@+id/view_finder"
+                app:layout_constraintTop_toBottomOf="@+id/imageView"
+                />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -76,8 +184,8 @@
                     android:layout_width="120dp"
                     android:layout_height="50dp"
                     android:gravity="center"
-                    android:textSize="20dp"
-                    android:text="位置编号(id)"
+                    android:textSize="16dp"
+                    android:text="检测点编号(ID)"
                     />
                 <EditText
                     android:id="@+id/location_id"
@@ -93,23 +201,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginTop="10dp"
-                >
-                <TextView
-                    android:layout_width="120dp"
-                    android:layout_height="50dp"
-                    android:gravity="center"
-                    android:textSize="20dp"
-                    android:text="统计间隔(秒)"
-                    />
-                <EditText
-                    android:id="@+id/time_interval"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:inputType="number"
-                    />
-            </LinearLayout>
-
+                />
             <Button
                 android:id="@+id/btn_start_detect1"
                 android:layout_width="match_parent"
